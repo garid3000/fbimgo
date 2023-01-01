@@ -3,34 +3,21 @@ package main
 import (
 	"fmt"
 	"os"
+	"image"
 	"image/color"
 	"image/png"
 	"log"
 )
 
+const height   int = 1080
+const width    int = 1920
+const channel  int = 4
+var (
+	fb [height * width * channel] byte
+)
 
 
-func main(){
-	fname := os.Args[1]   // for the command line arguments
-
-	imgfile, err := os.Open(fname)
-	if err != nil {
-		log.Fatal(err)
-		
-	}
-	defer imgfile.Close()
-
-
-	img, err := png.Decode(imgfile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	const height   int = 1080
-	const width    int = 1920
-	const channel  int = 4
-	var fb [height * width * channel] byte
-
+func ShowImgOnFrambeBuffer(img image.Image){
 	for y:=img.Bounds().Min.Y; y<img.Bounds().Max.Y; y++ {
 		for x:=img.Bounds().Min.X; x<img.Bounds().Max.X; x++ {
 			tmp := img.At(x,y)
@@ -42,10 +29,32 @@ func main(){
 		}
 	}
 
-	err = os.WriteFile("/dev/fb0", fb[:], 0644) //not sure about 0644
+	err := os.WriteFile("/dev/fb0", fb[:], 0644) //not sure about 0644
 	if err!=nil{
 		fmt.Printf("Something went wront, err code: %v\n", err)
 		panic(err)
 	}
-	
+}
+
+// ShowPNG_onFB ...
+func ShowPNG_onFB(fname string) {
+	imgfile, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer imgfile.Close()
+
+
+	img, err := png.Decode(imgfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ShowImgOnFrambeBuffer(img)
+}
+
+
+
+func main(){
+	fname := os.Args[1]   // for the command line arguments
+	ShowPNG_onFB(fname)
 }
