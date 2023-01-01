@@ -9,6 +9,7 @@ import (
 	"image/jpeg"
 	"log"
 	"strings"
+	"golang.org/x/term"
 )
 
 const channel  int = 4
@@ -25,9 +26,7 @@ func getSizeOfScreen()  {
 		panic(err)
 	}
 	fmt.Sscanf(string(bytes), "%v,%v\n",  &fb_width, &fb_height)
-	
 }
-
 
 
 func ShowImgOnFrambeBuffer(img image.Image){
@@ -42,7 +41,6 @@ func ShowImgOnFrambeBuffer(img image.Image){
 			fb[y * fb_width * channel + x * channel + 3] = col.A
 		}
 	}
-
 	err := os.WriteFile("/dev/fb0", fb, 0644) //not sure about 0644
 	if err!=nil{
 		fmt.Printf("Something went wront, err code: %v\n", err)
@@ -57,7 +55,6 @@ func fname2fb(fname string) {
 		log.Fatal(err)
 	}
 	defer imgfile.Close()
-
 
 	var img image.Image;
 	fnameParts := strings.Split(fname, ".")  //splits fname with dot . 
@@ -85,7 +82,17 @@ func fname2fb(fname string) {
 
 
 func main(){
+	// set cursor to the end of line.
+	// if not, display image will overwritten with shell's input line with $
+	_, height, err := term.GetSize(0)
+    if err != nil {
+        panic(2)
+    }
+	fmt.Printf("\033[%d;%dH", height, 0)
+
 	fname := os.Args[1]   // for the command line arguments
 	getSizeOfScreen()     // gets screen size
-	fname2fb(fname)
+	fname2fb(fname)       //\033[%d;%dH%c
 }
+
+
