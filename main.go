@@ -25,7 +25,19 @@ func getSizeOfScreen()  {
 		fmt.Printf("Something went wrong: %v\n", err)
 		panic(err)
 	}
+
 	fmt.Sscanf(string(bytes), "%v,%v\n",  &fb_width, &fb_height)
+	fb_width, fb_height = 1376, 768
+
+
+	bytes, err = os.ReadFile("/sys/class/graphics/fb0/stride")
+	if err != nil {
+		fmt.Printf("Something went wrong: %v\n", err)
+		panic(err)
+	}
+	fmt.Sscanf(string(bytes), "%v\n",  &fb_width)
+	fb_width /= 4
+	//fb_width, fb_height = 1376, 768
 }
 
 
@@ -92,6 +104,7 @@ func main(){
 
 	fname := os.Args[1]   // for the command line arguments
 	getSizeOfScreen()     // gets screen size
+	fmt.Println(fb_width, fb_height)
 	fname2fb(fname)       //\033[%d;%dH%c
 }
 
