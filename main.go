@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"image"
 	"image/color"
-	"image/png"
 	"image/jpeg"
+	"image/png"
 	"log"
+	"os"
 	"strings"
+
+	"golang.org/x/exp/mmap"
 	"golang.org/x/term"
 )
 
@@ -60,6 +62,17 @@ func ShowImgOnFrambeBuffer(img image.Image){
 	}
 }
 
+// func ShowImgOnFrambeBuffer_mmap(img image.Image) {
+// 	devfb, err := mmap.Open("/dev/fb0")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	p := make([]byte, fb_height * fb_width * channel)
+
+
+// }
+
 
 func fname2fb(fname string) {
 	imgfile, err := os.Open(fname)
@@ -87,9 +100,9 @@ func fname2fb(fname string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ShowImgOnFrambeBuffer(img)
+	// ShowImgOnFrambeBuffer(img)
+	// ShowImgOnFrambeBuffer_mmap(img)
 }
-
 
 
 
